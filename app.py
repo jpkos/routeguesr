@@ -20,6 +20,7 @@ html = '''
     <h4>Mikä reitti tässä kulkee?</h4>
     <p> Kokeile, kuinka hyvin tunnet HSL:n joukkoliikenteen reitit </p>
     <p> Reittivaihtoehdot löytyvät pudotusvalikosta </p>
+    <p> Sovelluksen lähdekoodin löydät <a href="https://github.com/jpkos/routeguesr">sen Github-reposta</a>
 </div>
 <script>
     var title = L.control({position: 'topleft'});
