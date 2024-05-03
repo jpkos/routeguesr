@@ -2,3 +2,4 @@
 *.zip
 *.pyc
 / flask_session
+secrets.txt
