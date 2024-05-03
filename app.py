@@ -15,8 +15,8 @@ import secrets
 
 import draw_stuff as ds
 from ui_config import *
-#%%
-html = '''
+#%% TODO: move to own file
+html_banner = '''
 <div id="maptitle" style="position: fixed; top: 20px; left: 100px; z-index: 9999; font-size: 12px; color: black; background-color: white; padding: 5px;">
     <h4>Mikä linja tässä kulkee?</h4>
     <p> Kokeile, kuinka hyvin tunnet HSL:n joukkoliikenteen reitit ja linjat </p>
@@ -33,7 +33,7 @@ html = '''
     title.addTo({{this}});
 </script>
 '''
-title_html = Element(html)
+title_html = Element(html_banner)
 app = Flask(__name__)
 with open('secrets.txt', 'r') as f:
     app.secret_key = f.readline()
@@ -42,29 +42,32 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 user_sessions = {}
-#%%
+#%% Small data preprocessing TODO: move to own file
 
 df_lines = pd.read_pickle('data/processed/lines.pkl').drop_duplicates(subset='line')
 df_lines = df_lines[df_lines['line'].str.len()<=4]
 df_lines['line'] = df_lines['line'].str[1:].str.lstrip('0')
 possible_lines = sorted(list(df_lines['line'].values))
+
 @app.route('/')
 def index():
     """
-    Init app
+    Init app 
     """
     user_sessions['total_guesses'] = 0
     user_sessions['correct_guesses'] = 0
+    # Get random line
     random_line = df_lines.sample(1)
     user_sessions['correct_line'] = random_line['line'].iloc[0]
     coords = random_line['geometry'].iloc[0].coords
-    start_coords = coords[0]
+    start_coords = coords[len(coords)//2]
+    # Draw map
     folium_map = folium.Map(location=start_coords, zoom_start=ZOOM_LVL)
     folium_map.get_root().html.add_child(title_html)
     polyline = ds.draw_route(coords, color=LINE_COLOR)
     folium_map.add_child(polyline)
+    # Render html
     map_html = folium_map._repr_html_()
-
     html_template  = render_template('index.html', map_html=map_html, possible_lines=possible_lines)
     return html_template
 
@@ -83,11 +86,11 @@ def new_line():
     folium_map.get_root().html.add_child(title_html)
     polyline = ds.draw_route(coords, color=LINE_COLOR)
     folium_map.add_child(polyline)
-
+    # Render html
     map_html = folium_map._repr_html_()
-
+    html_template = render_template('partial_map.html', map_html=map_html, possible_lines=possible_lines)
     # Render just the necessary parts to update
-    return render_template('partial_map.html', map_html=map_html, possible_lines=possible_lines)
+    return html_template
 
 @app.route('/check_guess', methods=['POST'])
 def check_guess():
@@ -95,7 +98,8 @@ def check_guess():
     Check user's guess and keep track of guesses
     """
     user_guess = request.form['guess']
-    correct_line = user_sessions.get('correct_line', 'Ei linjaa valittuna')  # Retrieve correct line from session
+    # Retrieve correct line from session
+    correct_line = user_sessions.get('correct_line', 'Ei linjaa valittuna') 
     if 'total_guesses' not in user_sessions.keys():
         user_sessions['total_guesses'] = 0
     if 'correct_guesses' not in user_sessions.keys():
@@ -106,7 +110,7 @@ def check_guess():
         user_sessions['correct_guesses'] += 1
     else:
         result = f"Väärin :( Oikea linja oli {correct_line}."
-
+    # TODO: Display guessed line as gray on the map after guess
     return jsonify(result=result,
                    total_guesses=user_sessions['total_guesses'],
                    correct_guesses=user_sessions['correct_guesses'])
