@@ -19,9 +19,9 @@ import draw_stuff as ds
 #%%
 html = '''
 <div id="maptitle" style="position: fixed; top: 20px; left: 100px; z-index: 9999; font-size: 12px; color: black; background-color: white; padding: 5px;">
-    <h4>Mikä reitti tässä kulkee?</h4>
-    <p> Kokeile, kuinka hyvin tunnet HSL:n joukkoliikenteen reitit </p>
-    <p> Reittivaihtoehdot löytyvät pudotusvalikosta </p>
+    <h4>Mikä linja tässä kulkee?</h4>
+    <p> Kokeile, kuinka hyvin tunnet HSL:n joukkoliikenteen reitit ja linjat </p>
+    <p> Linjavaihtoehdot löytyvät pudotusvalikosta </p>
     <p> Sovelluksen lähdekoodin löydät <a href="https://github.com/jpkos/routeguesr" target="_blank">sen Github-reposta</a>
     <p> Virheilmoitukset ja parannusehdotukset: koskinen.jani.p [at) gmail.com </p>
     </div>
@@ -36,7 +36,9 @@ html = '''
 '''
 title_html = Element(html)
 app = Flask(__name__)
-app.secret_key = '8db1eca554ed8f47a83cd9f22aa90efd'
+with open('secrets.txt', 'r') as f:
+    app.secret_key = f.readline()
+    #%%
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
@@ -47,6 +49,7 @@ ZOOM_LVL = 12
 LINE_COLOR = '#13B7FB'
 
 df_lines = pd.read_pickle('data/processed/lines.pkl').drop_duplicates(subset='line')
+df_lines = df_lines[df_lines['line'].str.]
 possible_lines = list(df_lines['line'].values)
 @app.route('/')
 def index():
