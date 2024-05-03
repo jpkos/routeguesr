@@ -1,0 +1,27 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Mikä reitti?</title>
+</head>
+<body>
+    <div id="map" style="height: 100vh;">{{ map_html|safe }}</div>
+    <div class="guess-box">
+        <select id="place-dropdown">
+            {% for line in possible_lines %}
+            <option value="{{ line }}">{{ line }}</option>
+            {% endfor %}
+        </select>
+        <button id="guess-btn" onclick="checkGuess()">Arvaa</button>
+        <button onclick="newLine()">Hae uusi linja</button>
+        <div id="result"></div>
+        <div>Arvauksia yhteensä: <span id="total-guesses">{{ total_guesses }}</span></div>
+        <div>Oikeita arvauksia: <span id="correct-guesses">{{ correct_guesses }}</span></div>
+
+    </div>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

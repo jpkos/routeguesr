@@ -1,0 +1,36 @@
+/* style.css */
+body, html {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;  /* Prevents any scrolling */
+    position: relative;  /* Allows absolute positioning inside */
+    font-family: Arial, sans-serif;
+}
+#map {
+    width: 80%;
+    height: 60%; /* Adjust height so that guess box is visible */
+    position: relative;
+    z-index: 0;
+}
+
+.guess-box {
+    position: absolute;
+    bottom: 10%;
+    right: 20px;
+    background-color: white;
+    padding: 10px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    z-index: 1000; /* Ensure it's on top of the map */
+    width: 300px; /* Ensure the box is not too small */
+    height: 60%;
+}
+
+.guess-box select, .guess-box button {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
