@@ -12,10 +12,9 @@ import yaml
 from bs4 import BeautifulSoup
 from flask_session import Session
 import secrets
-# import redis
 
 import draw_stuff as ds
-
+from ui_config import *
 #%%
 html = '''
 <div id="maptitle" style="position: fixed; top: 20px; left: 100px; z-index: 9999; font-size: 12px; color: black; background-color: white; padding: 5px;">
@@ -38,25 +37,22 @@ title_html = Element(html)
 app = Flask(__name__)
 with open('secrets.txt', 'r') as f:
     app.secret_key = f.readline()
-    #%%
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 user_sessions = {}
 #%%
-ZOOM_LVL = 12
-LINE_COLOR = '#13B7FB'
 
 df_lines = pd.read_pickle('data/processed/lines.pkl').drop_duplicates(subset='line')
-df_lines = df_lines[df_lines['line'].str.]
-possible_lines = list(df_lines['line'].values)
+df_lines = df_lines[df_lines['line'].str.len()<=4]
+df_lines['line'] = df_lines['line'].str[1:].str.lstrip('0')
+possible_lines = sorted(list(df_lines['line'].values))
 @app.route('/')
 def index():
-    # start_coords = (60.19912857374085, 24.940578211739854)  
-    # folium_map = folium.Map(location=start_coords,
-    #                         zoom_start=11)
-    # folium_map.get_root().html.add_child(title_html)
+    """
+    Init app
+    """
     user_sessions['total_guesses'] = 0
     user_sessions['correct_guesses'] = 0
     random_line = df_lines.sample(1)
@@ -74,6 +70,9 @@ def index():
 
 @app.route('/new_line')
 def new_line():
+    """
+    Draw new random line on map
+    """
     random_line = df_lines.sample(1).iloc[0]
     user_sessions['correct_line'] = random_line['line']  # Store correct line in session
 
@@ -92,6 +91,9 @@ def new_line():
 
 @app.route('/check_guess', methods=['POST'])
 def check_guess():
+    """
+    Check user's guess and keep track of guesses
+    """
     user_guess = request.form['guess']
     correct_line = user_sessions.get('correct_line', 'Ei linjaa valittuna')  # Retrieve correct line from session
     if 'total_guesses' not in user_sessions.keys():
@@ -110,16 +112,4 @@ def check_guess():
                    correct_guesses=user_sessions['correct_guesses'])
 
 if __name__ == '__main__':
-    # port = int(os.getenv('PORT', 8080))
-    # app.run(host='0.0.0.0', port=port, debug=False)
     app.run(debug=False)
-# %%
-    # for i, df in df_lines.sample(5).groupby('line'):
-    #     coords = df['geometry'].iloc[0].coords
-    #     polyline = ds.draw_route(coords)
-    #     marker_coords = coords[0]
-    #     folium_map.add_child(polyline)
-    #     folium.Marker(
-    #             location=marker_coords,
-    #             tooltip=df['line'].iloc[0]
-    #         ).add_to(folium_map)
