@@ -1,0 +1,15 @@
+runtime: python312  # Use the appropriate supported Python version
+instance_class: F1  # Choose an instance class based on your needs
+
+entrypoint: gunicorn -b :$PORT app:app  # Adjust 'main:app' based on your application's entry point
+
+automatic_scaling:
+  min_idle_instances: automatic  # Default is automatic (scaled based on traffic)
+  max_idle_instances: automatic  # Default is automatic (scaled based on traffic)
+  min_pending_latency: automatic  # Default is automatic (the lower the faster scaling)
+  max_pending_latency: automatic  # Default is 30ms at maximum
+
+# Optional: If your app serves static files, you can configure them like this
+handlers:
+- url: /static
+  static_dir: static/

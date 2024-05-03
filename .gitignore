@@ -1,4 +1,4 @@
 *.txt
 *.zip
 *.pyc
-flask_session
+/ flask_session
