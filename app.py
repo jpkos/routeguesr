@@ -44,10 +44,10 @@ Session(app)
 user_sessions = {}
 #%% Small data preprocessing TODO: move to own file
 
-df_lines = pd.read_pickle('data/processed/lines.pkl').drop_duplicates(subset='line')
-df_lines = df_lines[df_lines['line'].str.len()<=4]
-df_lines['line'] = df_lines['line'].str[1:].str.lstrip('0')
-possible_lines = sorted(list(df_lines['line'].values))
+df_lines = pd.read_pickle('data/processed/lines.pkl').drop_duplicates(subset='route_short_name', keep='last').dropna(subset='route_short_name')
+# df_lines = df_lines[df_lines['line'].str.len()<=4]
+# df_lines['line'] = df_lines['line'].str[1:].str.lstrip('0')
+possible_lines = sorted(list(df_lines['route_short_name'].values))
 
 #TODO
 # class MapTemplate:
@@ -81,7 +81,7 @@ possible_lines = sorted(list(df_lines['line'].values))
 def new_template(df_lines, html_output):
     # Get random line
     random_line = df_lines.sample(1)
-    user_sessions['correct_line'] = random_line['line'].iloc[0]
+    user_sessions['correct_line'] = random_line['route_short_name'].iloc[0]
     coords = random_line['geometry'].iloc[0].coords
     start_coords = coords[len(coords)//2]
     # Draw map
@@ -133,10 +133,11 @@ def check_guess():
         result = f"Väärin :( Oikea linja oli {correct_line}."
     # TODO: Display guessed line as gray on the map after guess
     user_sessions['correct_pct'] = (user_sessions['correct_guesses']/user_sessions['total_guesses'])*100 if user_sessions['total_guesses']>0 else 0
+    
     return jsonify(result=result,
                    total_guesses=user_sessions['total_guesses'],
                    correct_guesses=user_sessions['correct_guesses'],
                    correct_pct=f'{user_sessions['correct_pct']:.2f}')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
