@@ -4,3 +4,5 @@ Flask-pohjainen selainsovellus, jolla voit testata HSL:n joukkoliikenteen tietä
 
 Virheitä ja parannusehdotuksia voi ilmoittaa
 > koskinen.jani.p [at] gmail.com
+
+![Esimerkkikuva sovelluksesta](example.png)
