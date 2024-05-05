@@ -17,12 +17,13 @@ import draw_stuff as ds
 from ui_config import *
 #%% TODO: move to own file
 html_banner = '''
-<div id="maptitle" style="position: fixed; top: 20px; left: 100px; z-index: 9999; font-size: 12px; color: black; background-color: white; padding: 5px;">
+<div id="maptitle" style="position: fixed; top: 5%; left: 4%; width: 360px; z-index: 9999; font-size: 12px; border-radius: 5px; color: black; background-color: white; padding: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.3);">
     <h4>Mikä linja tässä kulkee?</h4>
     <p> Kokeile, kuinka hyvin tunnet HSL:n joukkoliikenteen reitit ja linjat </p>
     <p> Linjavaihtoehdot löytyvät pudotusvalikosta </p>
     <p> Sovelluksen lähdekoodin löydät <a href="https://github.com/jpkos/routeguesr" target="_blank">sen Github-reposta</a>
-    <p> Virheilmoitukset ja parannusehdotukset: koskinen.jani.p [at) gmail.com </p>
+    <p> Virheilmoitukset ja parannusehdotukset: </p>
+    <p> koskinen.jani.p [at) gmail.com </p>
     </div>
 <script>
     var title = L.control({position: 'topleft'});
@@ -49,13 +50,36 @@ df_lines = df_lines[df_lines['line'].str.len()<=4]
 df_lines['line'] = df_lines['line'].str[1:].str.lstrip('0')
 possible_lines = sorted(list(df_lines['line'].values))
 
-@app.route('/')
-def index():
-    """
-    Init app 
-    """
-    user_sessions['total_guesses'] = 0
-    user_sessions['correct_guesses'] = 0
+#TODO
+# class MapTemplate:
+#     def __init__(self, df_lines):
+#         self.df_lines = df_lines
+#         self.possible_lines = sorted(list(df_lines['line'].values))
+#         self.random_line()
+
+#     def random_line(self):
+#         self.random_line = df_lines.sample(1)
+#         self.coords = self.random_line['geometry'].iloc[0].coords
+
+#     def create_folium_map(self):
+#         start_coords = self.coords[len(self.coords)//2]
+#         folium_map = folium.Map(location=start_coords, zoom_start=ZOOM_LVL)
+#         folium_map.get_root().html.add_child(title_html)
+#         polyline = ds.draw_route(self.coords, color=LINE_COLOR)
+#         folium_map.add_child(polyline)
+#         return folium_map
+
+#     def render_html_template(self, folium_map, html_output):
+#         map_html = folium_map._repr_html_()
+#         return render_template(html_output, map_html=map_html, possible_lines=self.possible_lines)
+
+    
+#     def create_new_line(self):
+#         self.random_line()
+#         fmap = self.create_folium_map()
+
+# TODO: move contents to class
+def new_template(df_lines, html_output):
     # Get random line
     random_line = df_lines.sample(1)
     user_sessions['correct_line'] = random_line['line'].iloc[0]
@@ -68,7 +92,18 @@ def index():
     folium_map.add_child(polyline)
     # Render html
     map_html = folium_map._repr_html_()
-    html_template  = render_template('index.html', map_html=map_html, possible_lines=possible_lines)
+    html_template  = render_template(html_output, map_html=map_html, possible_lines=possible_lines)
+    return html_template
+
+@app.route('/')
+def index():
+    """
+    Init app 
+    """
+    user_sessions['total_guesses'] = 0
+    user_sessions['correct_guesses'] = 0
+    html_template = new_template(df_lines, 'index.html')
+
     return html_template
 
 @app.route('/new_line')
@@ -76,20 +111,7 @@ def new_line():
     """
     Draw new random line on map
     """
-    random_line = df_lines.sample(1).iloc[0]
-    user_sessions['correct_line'] = random_line['line']  # Store correct line in session
-
-    # Draw the line on the map
-    coords = random_line['geometry'].coords
-    start_coords = coords[len(coords)//2]
-    folium_map = folium.Map(location=start_coords, zoom_start=ZOOM_LVL)
-    folium_map.get_root().html.add_child(title_html)
-    polyline = ds.draw_route(coords, color=LINE_COLOR)
-    folium_map.add_child(polyline)
-    # Render html
-    map_html = folium_map._repr_html_()
-    html_template = render_template('partial_map.html', map_html=map_html, possible_lines=possible_lines)
-    # Render just the necessary parts to update
+    html_template = new_template(df_lines, 'partial_map.html')
     return html_template
 
 @app.route('/check_guess', methods=['POST'])
