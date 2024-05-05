@@ -10,12 +10,13 @@
 <body>
     <div id="map" style="height: 100vh;">{{ map_html|safe }}</div>
     <div class="guess-box">
+        <b>Valitse linja:</b>
         <select id="place-dropdown">
             {% for line in possible_lines %}
             <option value="{{ line }}">{{ line }}</option>
             {% endfor %}
         </select>
-        <button id="guess-btn" onclick="checkGuess()">Arvaa</button>
+        <button id="guess-btn" onclick="checkGuess()">Tarkista vastaus</button>
         <button onclick="newLine()">Hae uusi linja</button>
         <div id="result"></div>
         <div>Arvauksia yhteensä: <span id="total-guesses">{{ total_guesses }}</span></div>

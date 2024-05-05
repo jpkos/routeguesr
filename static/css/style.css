@@ -9,7 +9,7 @@ body, html {
     font-family: Arial, sans-serif;
 }
 #map {
-    width: 80%;
+    width: 100%;
     height: 60%; /* Adjust height so that guess box is visible */
     position: relative;
     z-index: 0;
@@ -17,20 +17,45 @@ body, html {
 
 .guess-box {
     position: absolute;
-    bottom: 10%;
-    right: 20px;
+    top: 250px;
+    left: 5%;
     background-color: white;
     padding: 10px;
     border-radius: 5px;
     box-shadow: 0 0 10px rgba(0,0,0,0.3);
     z-index: 1000; /* Ensure it's on top of the map */
     width: 300px; /* Ensure the box is not too small */
-    height: 60%;
+    height: 300px;
 }
 
-.guess-box select, .guess-box button {
+.guess-box select {
     display: block;
     width: 100%;
     margin-top: 10px;
     margin-bottom: 10px;
+    font-size: 24;
+
+}
+.guess-box button {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: 16;
+    background-color: dodgerblue;
+    border: none;
+    color: white;
+    border-radius: 5px;
+    height: 50px;
+    box-shadow: 0 0 10px rgba(33, 11, 230, 0.3);
+    transition: background-color 0.3s;
+}
+
+.guess-box button:hover {
+    background-color: #2056ab;
+}
+
+.guess-box button:disabled {
+    background-color: lightblue; /* Color when the button is disabled */
+    cursor: not-allowed; /* Cursor indicates the button is disabled */
 }
