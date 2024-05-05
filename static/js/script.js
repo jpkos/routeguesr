@@ -12,6 +12,7 @@ function checkGuess() {
         document.getElementById('result').textContent = data.result;
         document.getElementById('total-guesses').textContent = data.total_guesses;
         document.getElementById('correct-guesses').textContent = data.correct_guesses;
+        document.getElementById('correct-pct').textContent = data.correct_pct;
         // Disable the guess button to prevent further guesses
         document.getElementById('guess-btn').disabled = true;
     })

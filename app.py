@@ -19,8 +19,7 @@ from ui_config import *
 html_banner = '''
 <div id="maptitle" style="position: fixed; top: 5%; left: 4%; width: 360px; z-index: 9999; font-size: 12px; border-radius: 5px; color: black; background-color: white; padding: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.3);">
     <h4>Mikä linja tässä kulkee?</h4>
-    <p> Kokeile, kuinka hyvin tunnet HSL:n joukkoliikenteen reitit ja linjat </p>
-    <p> Linjavaihtoehdot löytyvät pudotusvalikosta </p>
+    <p> Kokeile, kuinka hyvin tunnet HSL:n joukkoliikenteen reitit ja linjat! </p>
     <p> Sovelluksen lähdekoodin löydät <a href="https://github.com/jpkos/routeguesr" target="_blank">sen Github-reposta</a>
     <p> Virheilmoitukset ja parannusehdotukset: </p>
     <p> koskinen.jani.p [at) gmail.com </p>
@@ -133,9 +132,11 @@ def check_guess():
     else:
         result = f"Väärin :( Oikea linja oli {correct_line}."
     # TODO: Display guessed line as gray on the map after guess
+    user_sessions['correct_pct'] = (user_sessions['correct_guesses']/user_sessions['total_guesses'])*100 if user_sessions['total_guesses']>0 else 0
     return jsonify(result=result,
                    total_guesses=user_sessions['total_guesses'],
-                   correct_guesses=user_sessions['correct_guesses'])
+                   correct_guesses=user_sessions['correct_guesses'],
+                   correct_pct=f'{user_sessions['correct_pct']:.2f}')
 
 if __name__ == '__main__':
-    app.run(debug=False)
+    app.run(debug=True)

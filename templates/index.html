@@ -19,8 +19,9 @@
         <button id="guess-btn" onclick="checkGuess()">Tarkista vastaus</button>
         <button onclick="newLine()">Hae uusi linja</button>
         <div id="result"></div>
-        <div>Arvauksia yhteensä: <span id="total-guesses">{{ total_guesses }}</span></div>
-        <div>Oikeita arvauksia: <span id="correct-guesses">{{ correct_guesses }}</span></div>
+        <div>Vastauksia yhteensä: <span id="total-guesses">{{ total_guesses }}</span></div>
+        <div>Oikeita vastauksia: <span id="correct-guesses">{{ correct_guesses }}</span></div>
+        <div>Onnistumisprosentti: <span id="correct-pct">{{ correct_pct }}</span> %</div>
 
     </div>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
