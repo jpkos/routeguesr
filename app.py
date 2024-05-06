@@ -12,41 +12,44 @@ import yaml
 from bs4 import BeautifulSoup
 from flask_session import Session
 import secrets
+from ui_config import title_html
+# from google.cloud import datastore
 
 import draw_stuff as ds
 from ui_config import *
 #%% TODO: move to own file
-html_banner = '''
-<div id="maptitle" style="position: fixed; top: 5%; left: 4%; width: 360px; z-index: 9999; font-size: 12px; border-radius: 5px; color: black; background-color: white; padding: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.3);">
-    <h4>Mikä linja tässä kulkee?</h4>
-    <p> Kokeile, kuinka hyvin tunnet HSL:n joukkoliikenteen reitit ja linjat! </p>
-    <p> Sovelluksen lähdekoodin löydät <a href="https://github.com/jpkos/routeguesr" target="_blank">sen Github-reposta</a>
-    <p> Virheilmoitukset ja parannusehdotukset: </p>
-    <p> koskinen.jani.p [at) gmail.com </p>
-    </div>
-<script>
-    var title = L.control({position: 'topleft'});
-    title.onAdd = function (map) {
-        var div = L.DomUtil.get("maptitle");
-        return div;
-    };
-    title.addTo({{this}});
-</script>
-'''
-title_html = Element(html_banner)
+# html_banner = '''
+# <div id="maptitle" style="position: fixed; top: 5%; left: 4%; width: 360px; z-index: 9999; font-size: 12px; border-radius: 5px; color: black; background-color: white; padding: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.3);">
+#     <h4>Mikä linja tässä kulkee?</h4>
+#     <p> Kokeile, kuinka hyvin tunnet HSL:n joukkoliikenteen reitit ja linjat! </p>
+#     <p> Sovelluksen lähdekoodin löydät <a href="https://github.com/jpkos/routeguesr" target="_blank">sen Github-reposta</a>
+#     <p> Virheilmoitukset ja parannusehdotukset: </p>
+#     <p> koskinen.jani.p [at) gmail.com </p>
+#     </div>
+# <script>
+#     var title = L.control({position: 'topleft'});
+#     title.onAdd = function (map) {
+#         var div = L.DomUtil.get("maptitle");
+#         return div;
+#     };
+#     title.addTo({{this}});
+# </script>
+# '''
+# title_html = Element(html_banner)
 app = Flask(__name__)
 with open('secrets.txt', 'r') as f:
     app.secret_key = f.readline()
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
-Session(app)
 
-user_sessions = {}
+# datastore_client = datastore.Client()
+
+# Session(app)
+
+# session = {}
 #%% Small data preprocessing TODO: move to own file
 
 df_lines = pd.read_pickle('data/processed/lines.pkl').drop_duplicates(subset='route_short_name', keep='last').dropna(subset='route_short_name')
-# df_lines = df_lines[df_lines['line'].str.len()<=4]
-# df_lines['line'] = df_lines['line'].str[1:].str.lstrip('0')
 possible_lines = sorted(list(df_lines['route_short_name'].values))
 
 #TODO
@@ -81,7 +84,7 @@ possible_lines = sorted(list(df_lines['route_short_name'].values))
 def new_template(df_lines, html_output):
     # Get random line
     random_line = df_lines.sample(1)
-    user_sessions['correct_line'] = random_line['route_short_name'].iloc[0]
+    session['correct_line'] = random_line['route_short_name'].iloc[0]
     coords = random_line['geometry'].iloc[0].coords
     start_coords = coords[len(coords)//2]
     # Draw map
@@ -99,8 +102,8 @@ def index():
     """
     Init app 
     """
-    user_sessions['total_guesses'] = 0
-    user_sessions['correct_guesses'] = 0
+    session['total_guesses'] = 0
+    session['correct_guesses'] = 0
     html_template = new_template(df_lines, 'index.html')
 
     return html_template
@@ -120,24 +123,24 @@ def check_guess():
     """
     user_guess = request.form['guess']
     # Retrieve correct line from session
-    correct_line = user_sessions.get('correct_line', 'Ei linjaa valittuna') 
-    if 'total_guesses' not in user_sessions.keys():
-        user_sessions['total_guesses'] = 0
-    if 'correct_guesses' not in user_sessions.keys():
-        user_sessions['correct_guesses'] = 0
-    user_sessions['total_guesses'] += 1
+    correct_line = session.get('correct_line', 'Ei linjaa valittuna') 
+    if 'total_guesses' not in session.keys():
+        session['total_guesses'] = 0
+    if 'correct_guesses' not in session.keys():
+        session['correct_guesses'] = 0
+    session['total_guesses'] = session.get('total_guesses', 0) + 1
     if user_guess == correct_line:
         result = f"Oikein! :) Oikea linja oli {correct_line}."
-        user_sessions['correct_guesses'] += 1
+        session['correct_guesses'] = session.get('correct_guesses', 0) + 1
     else:
         result = f"Väärin :( Oikea linja oli {correct_line}."
     # TODO: Display guessed line as gray on the map after guess
-    user_sessions['correct_pct'] = (user_sessions['correct_guesses']/user_sessions['total_guesses'])*100 if user_sessions['total_guesses']>0 else 0
+    session['correct_pct'] = (session.get('correct_guesses', 0)/session.get('total_guesses', 0))*100 if session.get('total_guesses', 0)>0 else 0
     
     return jsonify(result=result,
-                   total_guesses=user_sessions['total_guesses'],
-                   correct_guesses=user_sessions['correct_guesses'],
-                   correct_pct=f'{user_sessions['correct_pct']:.2f}')
+                   total_guesses=session.get('total_guesses', 0),
+                   correct_guesses=session.get('correct_guesses', 0),
+                   correct_pct=f'{session.get('correct_pct', 0):.2f}')
 
 if __name__ == '__main__':
     app.run(debug=False)
