@@ -12,30 +12,11 @@ import yaml
 from bs4 import BeautifulSoup
 from flask_session import Session
 import secrets
-from ui_config import title_html
 # from google.cloud import datastore
 
 import draw_stuff as ds
 from ui_config import *
-#%% TODO: move to own file
-# html_banner = '''
-# <div id="maptitle" style="position: fixed; top: 5%; left: 4%; width: 360px; z-index: 9999; font-size: 12px; border-radius: 5px; color: black; background-color: white; padding: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.3);">
-#     <h4>Mikä linja tässä kulkee?</h4>
-#     <p> Kokeile, kuinka hyvin tunnet HSL:n joukkoliikenteen reitit ja linjat! </p>
-#     <p> Sovelluksen lähdekoodin löydät <a href="https://github.com/jpkos/routeguesr" target="_blank">sen Github-reposta</a>
-#     <p> Virheilmoitukset ja parannusehdotukset: </p>
-#     <p> koskinen.jani.p [at) gmail.com </p>
-#     </div>
-# <script>
-#     var title = L.control({position: 'topleft'});
-#     title.onAdd = function (map) {
-#         var div = L.DomUtil.get("maptitle");
-#         return div;
-#     };
-#     title.addTo({{this}});
-# </script>
-# '''
-# title_html = Element(html_banner)
+
 app = Flask(__name__)
 with open('secrets.txt', 'r') as f:
     app.secret_key = f.readline()
@@ -45,9 +26,7 @@ app.config["SESSION_TYPE"] = "filesystem"
 # datastore_client = datastore.Client()
 
 # Session(app)
-
-# session = {}
-#%% Small data preprocessing TODO: move to own file
+#%% Load data
 
 df_lines = pd.read_pickle('data/processed/lines.pkl').drop_duplicates(subset='route_short_name', keep='last').dropna(subset='route_short_name')
 possible_lines = sorted(list(df_lines['route_short_name'].values))
@@ -100,7 +79,7 @@ def new_template(df_lines, html_output):
 @app.route('/')
 def index():
     """
-    Init app 
+    Initialize app 
     """
     session['total_guesses'] = 0
     session['correct_guesses'] = 0
