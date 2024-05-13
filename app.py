@@ -20,17 +20,13 @@ from google.oauth2 import service_account
 import draw_stuff as ds
 from ui_config import *
 #%%
-# os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = '../route-guesser-2024-122f66f95311.json'
-
-# credentials = service_account.Credentials.from_service_account_file(
-#     filename=os.environ['GOOGLE_APPLICATION_CREDENTIALS'],
-#     scopes=['https://www.googleapis.com/auth/cloud-platform'])
-# client = secretmanager.SecretManagerServiceClient(credentials=credentials)
+# For prod get key from secret key vault
 client = secretmanager.SecretManagerServiceClient()
-# name = f"projects/741704884780/secrets/session_secret/versions/1"
 name = f"projects/{os.getenv('GOOGLE_CLOUD_PROJECT')}/secrets/session_secret/versions/1"
 session_response = client.access_secret_version(request={"name": name})
 secret_key = session_response.payload.data.decode("UTF-8")
+# For local debugging
+# secret_key ='abcd' 
 
 app = Flask(__name__)
 app.secret_key = secret_key
@@ -261,5 +257,6 @@ def update_single_settings():
 #     return 'Invalid game state or session not found', 400
 
 if __name__ == '__main__':
-     socketio.run(app, debug=True)
+    #  socketio.run(app, debug=True)
+    app.run(debug=False)
 # %%
