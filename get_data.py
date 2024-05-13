@@ -55,10 +55,11 @@ df_lines = pd.merge(
 )
 #%%
 df_lines['Type'] = df_lines['Type'].fillna('')
+
 #%%
-df_lines['Type'] = df_lines['Type'].apply(lambda x: 'bus' if 'bus' in x else x.lower())
+df_lines['Type2'] = df_lines['Type'].apply(lambda x: 'bus' if 'bus' in x else x.lower())
 #%%
-df_lines = df_lines.rename(columns={'Type':'transport_type'})
+df_lines = df_lines.rename(columns={'Type2':'transport_type'})
 #%%
 print(df_lines.shape)
 
@@ -77,6 +78,7 @@ df_lines.loc[df_lines['route_short_name'].isin(['24S', '99M',
        '275', '280', '346', '375V', '375', '455A', '455', '456A', '456N',
        '456', '457A', '457', '459', '465B', '465', '848', '999', '965T',
        '969X']), 'transport_type'] = 'bus'
+df_lines.loc[df_lines['Type'] == 'M-bus', 'operating_type'] = 'service'
 #%% Save for app
 df_lines.to_pickle('data/processed/lines.pkl')
 # %%

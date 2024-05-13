@@ -73,7 +73,8 @@ function submitSinglePlayerSettings() {
         },
         operatingTypes: {
             normal: document.getElementById('categoryB1').checked,
-            night: document.getElementById('categoryB2').checked
+            night: document.getElementById('categoryB2').checked,
+            service: document.getElementById('categoryB3').checked
         }
     };
 
