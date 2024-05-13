@@ -1,6 +1,13 @@
 <div id="map" style="height: 100vh;">{{ map_html|safe }}</div>
 <select id="place-dropdown">
+    {% for line in line_types %}
+    <option class="{{ line.transport_type }}" value="{{ line.route_short_name }}">
+        {{ line.route_short_name }}
+    </option>
+    {% endfor %}
+</select>
+<!-- <select id="place-dropdown">
     {% for line in possible_lines %}
     <option value="{{ line }}">{{ line }}</option>
     {% endfor %}
-</select>
+</select> -->

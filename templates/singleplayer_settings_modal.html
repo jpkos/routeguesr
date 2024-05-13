@@ -1,0 +1,39 @@
+<!-- settings_modal.html -->
+<div class="modal fade" id="singleSettingsModal" tabindex="-1" aria-labelledby="singleSettingsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="singleSettingsModalLabel">Yksinpelin asetukset</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="single-settings-form">
+            <div class="form-group">
+              <label>Arvattavat liikennevälineet:</label> <br>
+              <input type="checkbox" id="categoryA1" name="bus"  onchange="toggleSubOptions(this, 'busOptions')" checked> Bussit<br>
+              <div id="busOptions" style="margin-left: 20px;">
+                <input type="checkbox" id="categoryB1" name="normal" checked> Normaalit linjat<br>
+                <input type="checkbox" id="categoryB2" name="night" checked> Yölinjat <br>
+
+              </div>
+              <input type="checkbox" id="categoryA2" name="train" checked> Junat<br>
+              <input type="checkbox" id="categoryA3" name="tram" checked> Raitiovaunut<br>
+              <input type="checkbox" id="categoryA4" name="metro" checked> Metrot<br>
+            </div>
+            <!-- <div class="form-group">
+              <label>Arvattavat operointitavat:</label> <br>
+              <input type="checkbox" id="categoryB1" name="normal" checked> Normaalit<br>
+              <input type="checkbox" id="categoryB2" name="night" checked> Yölinjat<br>
+            </div> -->
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Sulje tallentamatta</button>
+          <button type="button" class="btn btn-primary" onclick="submitSinglePlayerSettings()">Talleta asetukset</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  

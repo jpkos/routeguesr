@@ -16,15 +16,15 @@ body, html {
 }
 
 .guess-box {
-    position: absolute;
-    top: 250px;
-    left: 5%;
+    position: fixed;
+    top: 225px;
+    left: 10px;
     background-color: white;
     padding: 10px;
     border-radius: 5px;
     box-shadow: 0 0 10px rgba(0,0,0,0.3);
     z-index: 1000; /* Ensure it's on top of the map */
-    width: 300px; /* Ensure the box is not too small */
+    width: 360px; /* Ensure the box is not too small */
     height: 300px;
 }
 
@@ -58,4 +58,24 @@ body, html {
 .guess-box button:disabled {
     background-color: lightblue; /* Color when the button is disabled */
     cursor: not-allowed; /* Cursor indicates the button is disabled */
+}
+
+#multiplayer-settings-btn {
+    position: fixed;
+    top: 60px;
+    right: 20px;
+    width: 300px;
+    z-index: 1000;
+    background-color: #007AC9;
+    border: none;
+}
+
+#singleplayer-settings-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 300px;
+    z-index: 1000;
+    background-color: #007AC9;
+    border: none;
 }
