@@ -252,6 +252,35 @@ class MultiplayerFlowTest(unittest.TestCase):
         self.assertEqual(host_state["left_name"], "Guest")
         self.assertIn(b"Peli keskeytyi", host.get(f"/games/{game_id}/play").data)
 
+    def test_stale_multiplayer_heartbeat_marks_player_as_left(self):
+        host = route_app.app.test_client()
+        guest = route_app.app.test_client()
+        created = host.post("/games", data={
+            "nickname": "Host",
+            "route_count": "3",
+            "modes": ["bus"],
+            "zones": list(route_app.HSL_ZONES),
+        })
+        game_id = created.headers["Location"].rstrip("/").split("/")[-1]
+        guest.get(f"/games/{game_id}")
+        guest.post(f"/games/{game_id}/join", data={"nickname": "Guest"})
+
+        stale_time = (
+            route_app.datetime.now(route_app.timezone.utc)
+            - route_app.PLAYER_DISCONNECT_TIMEOUT
+            - route_app.timedelta(seconds=1)
+        )
+        route_app.game_store.update(
+            game_id,
+            lambda game: game["last_seen"].update({"guest": stale_time}),
+        )
+
+        host_state = host.get(f"/games/{game_id}/state").json
+
+        self.assertEqual(host_state["status"], "abandoned")
+        self.assertTrue(host_state["opponent_left"])
+        self.assertEqual(host_state["left_name"], "Guest")
+
     def test_leaving_solo_clears_the_game(self):
         client = route_app.app.test_client()
         client.post("/solo/start", data={

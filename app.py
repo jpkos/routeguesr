@@ -24,6 +24,7 @@ MODE_LABELS = {
     "ferry": "Lautta",
 }
 HSL_ZONES = ("A", "B", "C", "D", "E")
+PLAYER_DISCONNECT_TIMEOUT = timedelta(seconds=30)
 # Published by HSL at https://www.hsl.fi/matkustaminen/lahibussit
 LAHIBUSSI_ROUTES = frozenset({
     "31", "32", "33", "34", "35", "36",
@@ -284,6 +285,10 @@ def new_game_document(
         "left_by": None,
         "left_name": None,
         "left_at": None,
+        "last_seen": {
+            "host": now,
+            **({"guest": now} if guest_id else {}),
+        },
     }
 
 def role_for(game):
@@ -555,6 +560,8 @@ def join(game_id):
         game["guest_id"] = pid
         game["guest_name"] = name
         game["status"] = "playing"
+        now = datetime.now(timezone.utc)
+        game["last_seen"] = {"host": now, "guest": now}
 
     try:
         game = game_store.update(game_id, add_guest)
@@ -583,8 +590,31 @@ def play(game_id):
 
 @app.get("/games/<game_id>/state")
 def game_state(game_id):
-    game = get_game(game_id)
-    if not game: abort(404)
+    pid = player_id()
+
+    def update_presence(game):
+        role = "host" if pid == game["host_id"] else "guest" if pid == game["guest_id"] else None
+        if not role:
+            abort(403)
+
+        now = datetime.now(timezone.utc)
+        last_seen = game.setdefault("last_seen", {})
+        if game["status"] == "playing":
+            other = "guest" if role == "host" else "host"
+            opponent_last_seen = last_seen.get(other)
+            if opponent_last_seen is None:
+                # Give older games a full grace period after their first heartbeat.
+                last_seen[other] = now
+            elif now - opponent_last_seen > PLAYER_DISCONNECT_TIMEOUT:
+                game["status"] = "abandoned"
+                game["left_by"] = other
+                game["left_name"] = game[f"{other}_name"]
+                game["left_at"] = now
+        last_seen[role] = now
+
+    game = game_store.update(game_id, update_presence)
+    if not game:
+        abort(404)
     return jsonify(state_for(game))
 
 
