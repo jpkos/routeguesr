@@ -1,15 +1,17 @@
-runtime: python312  # Use the appropriate supported Python version
-instance_class: F1  # Choose an instance class based on your needs
+runtime: python312
+instance_class: F1
 
-entrypoint: gunicorn -b :$PORT app:app  # Adjust 'main:app' based on your application's entry point
+entrypoint: gunicorn -b :$PORT app:app
+
+env_variables:
+  GAME_BACKEND: "firestore"
+  FIRESTORE_DATABASE: "(default)"
+  FLASK_SECRET_ID: "flask-secret-key"
+  FLASK_SECRET_VERSION: "1"
 
 automatic_scaling:
-  min_idle_instances: automatic  # Default is automatic (scaled based on traffic)
-  max_idle_instances: automatic  # Default is automatic (scaled based on traffic)
-  min_pending_latency: automatic  # Default is automatic (the lower the faster scaling)
-  max_pending_latency: automatic  # Default is 30ms at maximum
+  max_instances: 5
 
-# Optional: If your app serves static files, you can configure them like this
 handlers:
 - url: /static
   static_dir: static/

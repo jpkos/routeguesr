@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="fi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#007ac9">
+  <link rel="stylesheet" href="{{ url_for('static',filename='css/style.css') }}">
+  <title>Harjoittelu · Reittikisa</title>
+</head>
+<body class="game-page">
+  <header class="game-header">
+    <form class="leave-form" action="{{ url_for('leave_solo') }}" method="post">
+      <button class="leave-button" type="submit">Keskeytä peli</button>
+    </form>
+    <div class="round-counter"><small>KIERROS</small><strong>{{ game.round + 1 }} / {{ game.routes|length }}</strong></div>
+  </header>
+  <main class="game-layout">
+    <section class="map-wrap">
+      <iframe title="Arvattava reitti" src="{{ url_for('solo_map') }}"></iframe>
+      <div class="map-prompt">MIKÄ REITTI TÄSSÄ KULKEE?</div>
+    </section>
+    <section class="answer-sheet">
+      <form id="solo-form" class="guess-form">
+        <label class="field-label" for="guess">Valitse linja</label>
+        <div class="guess-row">
+          <select id="guess" name="guess" required>
+            <option value="" selected disabled>Valitse reitti</option>
+            {% for line in possible_lines %}<option value="{{ line }}">{{ line }}</option>{% endfor %}
+          </select>
+          <button class="primary-button">Vastaa <span>→</span></button>
+        </div>
+      </form>
+      <div id="solo-result" class="solo-result" hidden></div>
+    </section>
+  </main>
+  <script>
+    document.querySelector('#solo-form').onsubmit = async event => {
+      event.preventDefault();
+      const response = await fetch('{{ url_for("solo_guess") }}', {method: 'POST', body: new FormData(event.target)});
+      const result = await response.json();
+      const box = document.querySelector('#solo-result');
+      box.hidden = false;
+      box.className = 'solo-result ' + (result.correct ? 'correct' : 'wrong');
+      box.innerHTML = (result.correct ? '✓ Oikein!' : '× Väärin. Oikea linja oli ' + result.route) + ' <a href="' + result.next_url + '">Jatka →</a>';
+      event.target.hidden = true;
+    };
+  </script>
+</body>
+</html>
