@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="fi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#007ac9">
+  <link rel="stylesheet" href="{{ url_for('static',filename='css/style.css') }}">
+  <title>Harjoittelun tulokset · Reittikisa</title>
+</head>
+<body class="panel-page results-page">
+  <main class="panel-shell results-shell">
+    <header class="results-heading">
+      <p class="eyebrow">HARJOITTELU PÄÄTTYI</p>
+      <h1>Tulokset</h1>
+      <div class="scoreboard solo-score"><div><small>OIKEIN</small><strong>{{ score }} / {{ game.routes|length }}</strong></div></div>
+    </header>
+    <div class="results-table-wrap">
+      <table class="results-table">
+        <thead><tr><th>Reitti</th><th>Vastauksesi</th></tr></thead>
+        <tbody>
+          {% for answer in game.answers %}
+          <tr><th><small>#{{ loop.index }}</small><strong>{{ answer.route }}</strong></th><td class="{{ 'correct' if answer.correct else 'wrong' }}"><span>{{ '✓' if answer.correct else '×' }}</span>{{ answer.guess }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <a class="primary-button button-link" href="/">Uusi harjoitus <span>↻</span></a>
+  </main>
+</body>
+</html>

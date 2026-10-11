@@ -1,0 +1,18 @@
+# Files excluded from Google Cloud deployments.
+.gcloudignore
+.git/
+.gitignore
+.venv/
+.test-deps/
+.agents/
+.codex/
+.aws/
+__pycache__/
+*.py[cod]
+*.zip
+flask_session/
+games.sqlite3
+secrets.txt
+tests/
+example.png
+data/hsl/

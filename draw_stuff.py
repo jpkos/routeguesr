@@ -1,7 +1,4 @@
 #%%
-import geopandas as gpd
-import pandas as pd
-import shapely
 import folium
 import numpy as np
 #%%

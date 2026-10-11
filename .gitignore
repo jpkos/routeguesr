@@ -1,5 +1,28 @@
-*.txt
-*.zip
-*.pyc
-/ flask_session
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Virtual environments and local dependencies
+.venv/
+.test-deps/
+
+# Local application state
+flask_session/
+games.sqlite3
+
+# Secrets and environment variables
 secrets.txt
+.env
+.env.*
+!.env.example
+
+# Downloaded GTFS data
+*.txt
+!requirements.txt
+*.zip
+data/hsl/
+
+# Test output
+.coverage
+htmlcov/

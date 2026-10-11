@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="fi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#007ac9">
+  <link rel="stylesheet" href="{{ url_for('static',filename='css/style.css') }}">
+  <title>Reittikisa</title>
+</head>
+<body class="game-page">
+  <header class="game-header">
+    <form class="leave-form" action="{{ url_for('leave_game', game_id=game.id) }}" method="post">
+      <button class="leave-button" type="submit">Keskeytä peli</button>
+    </form>
+    <div class="round-counter"><small>KIERROS</small><strong><span id="round-number">1</span> / {{ game.route_count }}</strong></div>
+  </header>
+  <main class="game-layout">
+    <section class="map-wrap">
+      <iframe id="route-map" title="Arvattava HSL-reitti" src="{{ url_for('game_map',game_id=game.id,round_number=0) }}"></iframe>
+      <div class="map-prompt">MIKÄ REITTI TÄSSÄ KULKEE?</div>
+    </section>
+    <section class="answer-sheet">
+      <div class="players-bar"><div class="player"><span class="avatar">{{ player_name[0]|upper }}</span><span><small>SINÄ</small><strong>{{ player_name }}</strong></span><i id="own-status"></i></div><div class="versus">VS</div><div class="player opponent"><i id="opponent-status"></i><span><small>VASTUSTAJA</small><strong>{{ opponent_name }}</strong></span><span class="avatar alt">{{ opponent_name[0]|upper }}</span></div></div>
+      <form id="guess-form" class="guess-form"><label class="field-label" for="guess">Valitse linja</label><div class="guess-row"><select id="guess" name="guess" required><option value="" selected disabled>Valitse reitti</option>{% for line in possible_lines %}<option value="{{ line }}">{{ line }}</option>{% endfor %}</select><button class="primary-button" type="submit">Vastaa <span>→</span></button></div></form>
+      <div id="waiting-message" class="waiting-message" hidden><span class="spinner"></span>Vastaus lukittu. Odotetaan vastustajaa…</div>
+    </section>
+  </main>
+  <div id="interrupted-dialog" class="game-interrupted" role="dialog" aria-modal="true" aria-labelledby="interrupted-title" hidden>
+    <section class="interrupted-card">
+      <h1 id="interrupted-title">Peli keskeytyi</h1>
+      <p><strong id="left-player"></strong> poistui pelistä.</p>
+      <a class="primary-button button-link" href="{{ url_for('index') }}">Palaa etusivulle</a>
+    </section>
+  </div>
+  <script>window.GAME={stateUrl:{{ url_for('game_state',game_id=game.id)|tojson }},guessUrl:{{ url_for('guess',game_id=game.id)|tojson }},mapUrl:{{ url_for('game_map',game_id=game.id,round_number=999)|tojson }}.replace('999','{round}')};</script>
+  <script src="{{ url_for('static',filename='js/game.js') }}"></script>
+</body>
+</html>

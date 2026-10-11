@@ -1,29 +1,79 @@
-<!-- index.html -->
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="fi" class="landing-root">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <title>Mikä reitti?</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <meta name="theme-color" content="#007ac9">
+  <link rel="stylesheet" href="{{ url_for('static',filename='css/style.css') }}">
+  <title>Mikä reitti?</title>
 </head>
-<body>
-    <div id="map" style="height: 100vh;">{{ map_html|safe }}</div>
-    <div class="guess-box">
-        <b>Valitse linja:</b>
-        <select id="place-dropdown">
-            {% for line in possible_lines %}
-            <option value="{{ line }}">{{ line }}</option>
-            {% endfor %}
-        </select>
-        <button id="guess-btn" onclick="checkGuess()">Tarkista vastaus</button>
-        <button onclick="newLine()">Hae uusi linja</button>
-        <div id="result"></div>
-        <div>Vastauksia yhteensä: <span id="total-guesses">{{ total_guesses }}</span></div>
-        <div>Oikeita vastauksia: <span id="correct-guesses">{{ correct_guesses }}</span></div>
-        <div>Onnistumisprosentti: <span id="correct-pct">{{ correct_pct }}</span> %</div>
+<body class="landing-page">
+  <main class="landing-shell">
+    <header class="hero">
+      <h1>Tunnistatko<br><em>joukkoliikennereitin<br>kartasta?</em></h1>
+      <p class="hero-copy">Haasta ystäväsi samaan karttavisaan. Molemmat näkevät samat reitit, ja seuraava kierros alkaa vasta kun kumpikin on vastannut.</p>
+    </header>
+    <section class="card create-card">
+      <div class="section-heading">
+        <div><h2>Aloita peli</h2><p>Valitse yhteiset peliasetukset.</p></div>
+      </div>
+      {% if error %}<div class="alert">{{ error }}</div>{% endif %}
+      <form action="{{ url_for('create_game') }}" method="post">
+        <label class="field-label" for="nickname">Nimimerkkisi kaksinpeliin</label>
+        <input id="nickname" name="nickname" maxlength="24" autocomplete="nickname" placeholder="Esim. Reittimestari" required>
 
-    </div>
-    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+        <label class="field-label" for="route-count">Reittien määrä</label>
+        <div class="range-row">
+          <input id="route-count" type="range" name="route_count" min="3" max="20" value="5" oninput="document.querySelector('#route-value').textContent=this.value">
+          <output id="route-value">5</output>
+        </div>
+
+        <fieldset>
+          <legend class="field-label">Kulkumuodot</legend>
+          <div class="mode-grid">
+            {% for value,label in mode_labels.items() %}
+            <label class="mode-option">
+              <input type="checkbox" name="modes" value="{{ value }}" checked>
+              <span class="mode-icon">{{ label }}</span>
+            </label>
+            {% endfor %}
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend class="field-label">Vyöhykkeet</legend>
+          <div class="zone-grid">
+            {% for zone in zones %}
+            <label class="mode-option">
+              <input type="checkbox" name="zones" value="{{ zone }}" checked>
+              <span class="mode-icon">{{ zone }}</span>
+            </label>
+            {% endfor %}
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend class="field-label">Erikoisreitit</legend>
+          <div class="special-route-grid">
+            <label class="mode-option">
+              <input type="checkbox" name="include_night_routes" value="1" checked>
+              <span class="mode-icon">Yölinjat (N)</span>
+            </label>
+            <label class="mode-option">
+              <input type="checkbox" name="include_alternative_routes" value="1" checked>
+              <span class="mode-icon">Poikkeusreitit (H/T)</span>
+            </label>
+            <label class="mode-option">
+              <input type="checkbox" name="include_lahibussi_routes" value="1" checked>
+              <span class="mode-icon">Lähibussit</span>
+            </label>
+          </div>
+        </fieldset>
+
+        <button class="primary-button" type="submit">Luo kaksinpeli <span>→</span></button>
+        <button class="text-link solo-button" type="submit" formnovalidate formaction="{{ url_for('start_solo') }}">Harjoittele yksin</button>
+      </form>
+    </section>
+  </main>
 </body>
 </html>
